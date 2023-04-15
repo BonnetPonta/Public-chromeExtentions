@@ -1,0 +1,16 @@
+{
+    "manifest_version": 3,
+    "name": "Twitter Utils",
+    "version": "1.0",
+    "description": "左下の自分のプロフィールを隠します。",
+    "content_scripts": [
+        {
+            "matches": [
+                "https://twitter.com/*"
+            ],
+            "css": [
+                "css/hideMyProfile.css"
+            ]
+        }
+    ]
+}

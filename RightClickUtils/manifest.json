@@ -1,0 +1,12 @@
+{
+    "manifest_version": 3,
+    "name": "RightClick Utils",
+    "version": "1.0",
+    "description": "右クリックで選択したテキストを 選択したサイト内 で検索できるようにします。",
+    "permissions": [
+        "contextMenus"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    }
+}
