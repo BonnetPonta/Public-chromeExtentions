@@ -1,4 +1,11 @@
-const items = document.querySelectorAll('.sg-col-20-of-24.s-result-item.s-asin.sg-col-0-of-12.sg-col-16-of-20.sg-col.s-widget-spacing-small.sg-col-12-of-16');
+const items = document.querySelectorAll(
+    // クエリがキーワードのみの画面用
+    // クエリに評価が含まれている画面用
+    // クエリに prime が含まれている画面用
+    '.sg-col-4-of-24.sg-col-4-of-12.s-result-item.s-asin.sg-col-4-of-16.sg-col.s-widget-spacing-small.sg-col-4-of-20, \
+    .sg-col-20-of-24.s-result-item.s-asin.sg-col-0-of-12.sg-col-16-of-20.sg-col.s-widget-spacing-small.sg-col-12-of-16, \
+    .sg-col-4-of-24.sg-col-4-of-12.s-result-item.s-asin.sg-col-4-of-16.sg-col.s-widget-spacing-small.sg-col-4-of-20'
+);
 
 // itemsが無ければクラス名の変更のため、アラート
 if (items.length === 0) {
@@ -26,13 +33,15 @@ for (const item of items) {
             const count = parseFloat(reviewCount); // 数値に変換
             console.log(`Amazon filter: rate: ${rate} / count: ${count}`);
 
-            // 評価が3.5以上、評価数が10件以上なら表示かつ、評価数を数値化。
-            // そうでないなら非表示。
+            // 評価数を数値化。
+            // 評価が4.0未満なら背景色を赤、評価数が10件未満なら黄、それ以外は緑。
             reviewCountElement.textContent = `★${reviewRate} / ${reviewCount}件`;
-            if (rate >= 3.5 && count >= 10) {
-                reviewCountElement.style.background = "green";
-            } else {
+            if (rate < 4.0) {
                 reviewCountElement.style.background = "red";
+            } else if (count < 10) {
+                reviewCountElement.style.background = "yellow";
+            } else {
+                reviewCountElement.style.background = "green";
             }
         }
     }

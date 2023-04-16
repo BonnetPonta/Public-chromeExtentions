@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Amazon Utils.",
-    "version": "1.0",
+    "version": "1.1",
     "description": "商品の評価数を数値化。更に評価が3.5以上、評価数が10件以上なら背景色を緑。それ以外は赤にする。",
     "content_scripts": [
         {
