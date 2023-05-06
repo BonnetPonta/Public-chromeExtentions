@@ -1,7 +1,5 @@
-function search(engine, info, tab, params = "") {
+function search(url) {
     try {
-        const text = info.selectionText;
-        const url = `https://www.${engine}/search?q=${encodeURIComponent(text)}&${params}`;
         chrome.tabs.create({ url });
     } catch (e) {
         console.error(e);
@@ -39,21 +37,21 @@ chrome.runtime.onInstalled.addListener(function () {
     });
 });
 
-chrome.contextMenus.onClicked.addListener(function (info, tab) {
+chrome.contextMenus.onClicked.addListener(function (info) {
     switch (info.menuItemId) {
         case "searchOnAmazon":
-            search("amazon.co.jp", info, tab);
+            search(`https://www.amazon.co.jp/s?k=${encodeURIComponent(info.selectionText)}`);
             break;
         case "searchOnYouTube":
-            search("youtube.com", info, tab);
+            search(`https://www.youtube.com/results?search_query=${encodeURIComponent(info.selectionText)}`);
             break;
         case "searchOnGoogle":
             break;
         case "searchOnGoogleImages":
-            search("google.com", info, tab, "tbm=isch");
+            search(`https://www.google.com/search?q=${encodeURIComponent(info.selectionText)}&tbm=isch`);
             break;
         case "searchOnGoogleVideos":
-            search("google.com", info, tab, "tbm=vid");
+            search(`https://www.google.com/search?q=${encodeURIComponent(info.selectionText)}&tbm=vid`);
             break;
         default:
             console.error("Unknown menu item ID: " + info.menuItemId);
