@@ -1,16 +1,29 @@
 {
     "manifest_version": 3,
     "name": "Amazon Utils.",
-    "version": "1.1",
-    "description": "商品の評価数を数値化。更に評価が3.5以上、評価数が10件以上なら背景色を緑。それ以外は赤にする。",
+    "version": "2.0",
+    "description": "非表示系",
     "content_scripts": [
         {
             "matches": [
-                "https://www.amazon.co.jp/s?k=*"
+                "https://www.amazon.co.jp/*"
+            ],
+            "js": [
+                "js/pageNavigation.js"
+            ]
+        },
+        {
+            "matches": [
+                "https://www.amazon.co.jp/s?k=*",
+                "https://www.amazon.co.jp/hz/wishlist/ls/*",
+                "https://www.amazon.co.jp/gp/bestsellers/*"
             ],
             "js": [
                 "js/reviewColorizer.js"
             ]
         }
+    ],
+    "permissions": [
+        "activeTab"
     ]
 }

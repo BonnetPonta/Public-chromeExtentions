@@ -1,48 +1,69 @@
-const items = document.querySelectorAll(
-    // クエリがキーワードのみの画面用
-    // クエリに評価が含まれている画面用
-    // クエリに prime が含まれている画面用
-    '.sg-col-4-of-24.sg-col-4-of-12.s-result-item.s-asin.sg-col-4-of-16.sg-col.s-widget-spacing-small.sg-col-4-of-20, \
-    .sg-col-20-of-24.s-result-item.s-asin.sg-col-0-of-12.sg-col-16-of-20.sg-col.s-widget-spacing-small.sg-col-12-of-16, \
-    .sg-col-4-of-24.sg-col-4-of-12.s-result-item.s-asin.sg-col-4-of-16.sg-col.s-widget-spacing-small.sg-col-4-of-20'
-);
+function coloring(itemElementsTag, reviewRateElementTag, reviewCountElementsTag) {
+    const items = document.querySelectorAll(itemElementsTag);
 
-// itemsが無ければクラス名の変更のため、アラート
-if (items.length === 0) {
-    alert(`Amazon filter: items 0のため、クラス名が変わった可能性があります。`);
-    console.log(`Amazon filter: false`);
-} else {
+    if (!items?.length) {
+        console.log(`Amazon filter: false`);
+        return;
+    }
+
     console.log(`Amazon filter: true / items count: ${items.length}`);
-}
 
-for (const item of items) {
-    const reviewRateElement = item.querySelector(".a-icon-alt");
-    const reviewCountElements = item.querySelectorAll(".a-size-base.s-underline-text");
+    for (const item of items) {
+        const reviewRateElement = item.querySelector(reviewRateElementTag);
+        const reviewCountElements = item.querySelectorAll(reviewCountElementsTag);
 
-    if (reviewRateElement && reviewCountElements) { // elementがない場合のエラー対策
-        // 正規表現で末尾の謎の . を削除
-        const reviewRate = reviewRateElement.textContent.replace("5つ星のうち", "").replace(/\.+$/, '').trim();
-        // 正規表現で複数要素を取得するときがあるため、最初の整数の要素を取得
-        const reviewCountElement = Array.from(reviewCountElements).find(el => /^[0-9]+$/.test(el.textContent.trim()));
-        const reviewCount = reviewCountElement ? parseInt(reviewCountElement.textContent, 10) : 0;
+        if (!reviewRateElement || !reviewCountElements) continue;
 
-        // console.log(`Amazon filter: reviewRate: ${reviewRate} / reviewCount: ${reviewCount}`);
-        if (!isNaN(parseFloat(reviewRate)) && !isNaN(parseFloat(reviewCount))) { // 数値かどうかを判定
+        const reviewRate = reviewRateElement.textContent.replace(/5つ星のうち|\.*$/g, '').trim();
+        const reviewCountElement = Array.from(reviewCountElements).find(el => /^\d+(,\d+)*$/.test(el.textContent.trim()));
+        const reviewCount = parseInt(reviewCountElement?.textContent?.replace(/,/g, '') ?? "0");
 
-            const rate = parseFloat(reviewRate); // 数値に変換
-            const count = parseFloat(reviewCount); // 数値に変換
-            console.log(`Amazon filter: rate: ${rate} / count: ${count}`);
+        if (isNaN(parseFloat(reviewRate)) || isNaN(parseFloat(reviewCount))) continue;
 
-            // 評価数を数値化。
-            // 評価が4.0未満なら背景色を赤、評価数が10件未満なら黄、それ以外は緑。
-            reviewCountElement.textContent = `★${reviewRate} / ${reviewCount}件`;
-            if (rate < 4.0) {
-                reviewCountElement.style.background = "red";
-            } else if (count < 10) {
-                reviewCountElement.style.background = "yellow";
+        const rate = parseFloat(reviewRate);
+        console.log(`Amazon filter: rate: ${rate} / count: ${reviewCount}`);
+
+        try {
+            reviewRateElement.textContent = `★${reviewRate}`;
+            reviewCountElement.textContent = `${reviewCount.toLocaleString()}件`;
+
+            reviewRateElement.style.background = rate < 4.0 ? "red" : rate < 4.5 ? "yellow" : "green";
+            reviewCountElement.style.background = reviewCount < 30 ? "red" : reviewCount < 100 ? "yellow" : "green";
+
+            if (reviewRateElement.style.background === "green" && reviewCountElement.style.background === "green") {
+                item.style.background = "green";
+            } else if (reviewRateElement.style.background === "red" && reviewCountElement.style.background !== "red") {
+                item.style.display = "none";
+            }
+
+            const reviewCountText = reviewCountElement.textContent;
+            reviewCountElement.innerHTML = `<span style="background:${reviewRateElement.style.background};">${reviewRateElement.textContent} / </span><span style="background:${reviewCountElement.style.background};">${reviewCountText}</span>`;
+        } catch (error) {
+            if (error instanceof TypeError) {
+                continue;
             } else {
-                reviewCountElement.style.background = "green";
+                throw error;
             }
         }
     }
-};
+}
+
+
+// 商品リストの背景色を変更する関数を実行する関数
+function executeColoring() {
+    const href = window.location.href;
+    if (href.startsWith("https://www.amazon.co.jp/s?")) {
+        coloring('[data-component-type="s-search-result"]', ".a-icon-alt", ".a-size-base.s-underline-text");
+    } else if (href.startsWith("https://www.amazon.co.jp/hz/wishlist/ls/")) {
+        coloring(".a-spacing-none.g-item-sortable", ".a-icon-alt", ".a-size-base.a-link-normal");
+    } else if (href.startsWith("https://www.amazon.co.jp/gp/bestsellers/")) {
+        coloring(".a-cardui._cDEzb_grid-cell_1uMOS.expandableGrid.p13n-grid-content", ".a-icon-alt", ".a-size-small");
+    }
+}
+
+
+// ページが読み込まれたときに商品リストの背景色を変更する関数を実行する
+window.addEventListener("load", executeColoring);
+
+// ページがスクロールされたときに商品リストの背景色を変更する関数を実行する
+window.addEventListener("scroll", executeColoring);
